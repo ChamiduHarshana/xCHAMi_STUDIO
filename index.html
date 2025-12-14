@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xCHAMi Studio | Expert Tech Solutions</title>
+    <!-- Google Fonts - Poppins is good for Latin, but we'll specify a compatible font for Sinhala in CSS if needed -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        /* Dark Mode (Default) */
+        :root {
+            --bg-color: #0b0b12; /* Deep dark background */
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #00f3ff; /* Neon Cyan */
+            --secondary: #bc13fe; /* Neon Purple */
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --card-hover: rgba(255, 255, 255, 0.1);
+            --calc-keypad-bg: #1a1a25; /* Slightly lighter background for buttons */
+            --chat-user-bg: #2d2d3e; /* User bubble background */
+            --chat-assistant-bg: #1a1a25; /* Assistant bubble background */
+            --header-bg: rgba(11, 11, 18, 0.9);
+        }
+
+        /* Light Mode Overrides */
+        .light-mode {
+            --bg-color: #f0f0f5; /* Light grey background */
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --primary: #007bff; /* Standard Blue */
+            --secondary: #e91e63; /* Pink/Red accent */
+            --text-main: #212121; /* Dark text */
+            --text-muted: #555555;
+            --card-hover: rgba(0, 0, 0, 0.05);
+            --calc-keypad-bg: #ffffff;
+            --chat-user-bg: #e0e0e5;
+            --chat-assistant-bg: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            /* Reset the background image for a cleaner light mode look */
+            background-image: none !important;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+            /* Defaulting to a safe Sinhala font if Poppins doesn't cover it well */
+            font-family: 'Poppins', sans-serif, 'Noto Sans Sinhala', 'iskpota', sans-serif; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.15) 0%, transparent 20%);
+            transition: background-color 0.4s, color 0.4s; /* Smooth transition for theme change */
+        }
+
+        /* --- UTILITY CLASSES --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title span {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.4s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            /* Dark mode shadow */
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.15);
+            border-color: rgba(0, 243, 255, 0.3);
+        }
+        
+        .light-mode .glass-card:hover {
+             /* Light mode shadow */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        }
+
+        .light-mode .btn-primary {
+            color: var(--text-main);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(188, 19, 254, 0.6);
+            transform: scale(1.05);
+        }
+        
+        .light-mode .btn-primary:hover {
+            box-shadow: 0 4px 15px var(--secondary);
+        }
+
+        /* --- NAVBAR --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--header-bg);
+            backdrop-filter: blur(12px); /* Slightly stronger blur */
+            -webkit-backdrop-filter: blur(12px);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--glass-border);
+            transition: background 0.4s, border-bottom 0.4s;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: 1px;
+            z-index: 1001; /* Ensure logo is above mobile menu overlay */
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        /* Desktop Navigation Links */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            transition: all 0.5s ease;
+        }
+        
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s, background-color 0.3s;
+            position: relative;
+            padding-bottom: 5px; /* Space for the underline */
+        }
+
+        /* Link Hover/Active Effect */
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle, .lang-toggle {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s, transform 0.3s;
+        }
+        
+        .lang-toggle {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+        
+        .lang-toggle:hover {
+            background: rgba(0, 243, 255, 0.1);
+        }
+        
+        .theme-toggle:hover {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        /* Hamburger Button */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            z-index: 1001; /* Above mobile menu */
+        }
+        
+        /* --- MOBILE NAVIGATION STYLES (Screen < 992px) --- */
+        @media (max-width: 992px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--header-bg);
+                flex-direction: column;
+                justify-content: center;
+                gap: 40px;
+                transform: translateX(100%);
+                padding: 30px;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+                z-index: 999;
+                border-left: 1px solid var(--glass-border);
+            }
+            
+            .nav-links.nav-active {
+                transform: translateX(0);
+            }
+
+            .nav-links a {
+                font-size: 1.2rem;
+                display: block;
+                padding: 10px 0;
+                text-align: center;
+            }
+            
+            .nav-links a::after {
+                height: 2px;
+                bottom: -5px;
+            }
+            
+            .nav-links a:hover::after,
+            .nav-links a.active::after {
+                width: 50%;
+                left: 25%;
+            }
+
+            .hamburger {
+                display: block;
+            }
+            
+            .nav-controls {
+                z-index: 1001;
+            }
+        }
+        
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding-top: 60px;
+        }
+        
+        /* The rest of the existing CSS remains the same below... */
+
+        .hero-content h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero-content h1 span {
+            display: block;
+            color: var(--primary);
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+        
+        .light-mode .hero-content h1 span {
+            text-shadow: none;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- ABOUT SECTION --- */
+        .about {
+            padding: 80px 0;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center ;
+        }
+
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .about-text p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .about-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .profile-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            background: rgba(0, 243, 255, 0.1);
+            padding: 20px;
+            border-radius: 50%;
+        }
+        
+        .light-mode .profile-icon {
+            background: rgba(0, 123, 255, 0.1);
+        }
+
+        /* --- SERVICES SECTION --- */
+        .services {
+            padding: 80px 0;
+            background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.3), transparent);
+        }
+        
+        .light-mode .services {
+            background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            text-align: center;
+        }
+
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .service-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        /* --- CALCULATOR SECTION --- */
+        .calculator-section {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .calculator-body {
+            width: 100%;
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 20px;
+            /* Inherits glass-card styles */
+        }
+
+        .display-container {
+            background: var(--calc-keypad-bg);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            text-align: right;
+            border: 1px solid var(--glass-border);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .light-mode .display-container {
+             background: rgba(0, 0, 0, 0.05);
+             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .current-input {
+            min-height: 25px;
+            font-size: 1rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow-x: auto;
+            /* Scrollbar styling for a cleaner look */
+            scrollbar-width: none; /* Firefox */
+        }
+        .current-input::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .display {
+            min-height: 40px;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            white-space: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        .display::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .mode-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .mode-toggle span {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            padding: 15px 0;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            background-color: var(--calc-keypad-bg);
+            color: var(--text-main);
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Specific button styling */
+        .calc-btn:hover {
+            background-color: var(--card-hover);
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .calc-btn-operator {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .calc-btn-equals {
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            color: var(--bg-color); /* Dark text on bright background */
+            grid-column: span 2;
+        }
+
+        .calc-btn-equals:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 15px var(--secondary);
+        }
+
+        .calc-btn-clear {
+            background-color: #e91e63; /* Pink/Red for Clear */
+            color: white;
+            font-weight: 700;
+        }
+
+        .calc-btn-mode {
+            background-color: rgba(120, 120, 120, 0.2);
+            font-size: 0.8rem;
+            padding: 10px 0;
+            color: var(--text-muted);
+        }
+        
+        .calc-btn-mode.active {
+            background-color: var(--primary);
+            color: var(--bg-color);
+            font-weight: 700;
+        }
+        
+        .calc-btn-mode:hover {
+             box-shadow: none;
+        }
+        
+        .light-mode .calc-btn-clear {
+            background-color: #ff5722;
+        }
+        
+        .light-mode .calc-btn-equals {
+            color: white;
+        }
+        
+        .light-mode .calc-btn-operator {
+             color: var(--primary);
+        }
+
+        /* --- AI ASSISTANT SECTION --- */
+        .ai-assistant {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 40px auto;
+            display: flex;
+            flex-direction: column;
+            height: 60vh;
+            min-height: 400px;
+            padding: 0;
+        }
+
+        .chat-history {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            border-radius: 16px 16px 0 0;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-bottom: none;
+            scrollbar-width: none; /* Firefox */
+        }
+        .chat-history::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 10px 15px;
+            border-radius: 12px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .message-content pre {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .message-content h5 {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+            font-weight: 400;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .user-message .message-content {
+            background-color: var(--chat-user-bg);
+            border-bottom-right-radius: 4px;
+            color: var(--text-main);
+            border: 1px solid var(--primary);
+        }
+
+        .assistant-message {
+            justify-content: flex-start;
+        }
+
+        .assistant-message .message-content {
+            background-color: var(--chat-assistant-bg);
+            border-bottom-left-radius: 4px;
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 15px 0;
+            color: var(--text-muted);
+            padding-left: 15px;
+        }
+        
+        .loading-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        
+        .loading-indicator .dot:nth-child(2) {
+            animation-delay: -0.32s;
+        }
+        
+        .loading-indicator .dot:nth-child(3) {
+            animation-delay: -0.16s;
+        }
+        
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1.0);
+            }
+        }
+        
+        .chat-input-area {
+            display: flex;
+            padding: 1rem;
+            background: var(--chat-assistant-bg);
+            border-radius: 0 0 16px 16px;
+            border: 1px solid var(--glass-border);
+            border-top: none;
+        }
+
+        .chat-input-area input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            background: var(--calc-keypad-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            margin-right: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input-area input:focus {
+            border-color: var(--primary);
+        }
+
+        .chat-input-area button {
+            background: var(--primary);
+            color: var(--bg-color);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        
+        .chat-input-area button:hover:not(:disabled) {
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+        
+        .chat-input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* --- SHOP SECTION --- */
+        .shop {
+            padding: 80px 0;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-img {
+            height: 180px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 3rem;
+        }
+        
+        .light-mode .product-img {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .product-info {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-info h4 {
+            margin-bottom: 10px;
+        }
+
+        .price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .btn-sm {
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* --- CONTACT SECTION --- */
+        .contact {
+            padding: 80px 0 120px;
+        }
+
+        .contact-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+        }
+
+        .contact-info, .contact-form {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .contact-item i {
+            width: 40px;
+            height: 40px;
+            background: rgba(188, 19, 254, 0.1);
+            color: var(--secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        
+        .light-mode .contact-item i {
+            background: rgba(233, 30, 99, 0.1);
+        }
+
+        .btn-whatsapp {
+            background: #25D366; /* WhatsApp Green */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-whatsapp:hover {
+            background: #20bd5a;
+            box-shadow: 0 0 25px rgba(37, 211, 102, 0.5);
+        }
+
+        form input, form textarea {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            border-radius: 8px;
+            outline: none;
+        }
+        
+        .light-mode form input, .light-mode form textarea {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+        }
+
+        form input:focus, form textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #050508;
+            padding: 40px 0;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+            transition: background 0.4s, border-top 0.4s;
+        }
+        
+        .light-mode footer {
+            background: #e0e0e5;
+        }
+
+        .social-links {
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: var(--text-main);
+            font-size: 1.2rem;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+            .hero-content p {
+                font-size: 1rem;
+            }
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .chat-container {
+                height: 70vh;
+                max-width: 100%;
+                margin: 20px auto;
+            }
+        }
+
+        /* --- ANIMATIONS (JS classes) --- */
+        .hidden {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body id="top">
+
+    <!-- NAVBAR -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#home" class="logo">xCHAMi <span>Studio</span></a>
+                <ul class="nav-links">
+                    <li><a href="#home" data-i18n="home" class="nav-link-item" onclick="toggleMenu()">Home</a></li>
+                    <li><a href="#about" data-i18n="about" class="nav-link-item" onclick="toggleMenu()">About</a></li>
+                    <li><a href="#services" data-i18n="services" class="nav-link-item" onclick="toggleMenu()">Services</a></li>
+                    <li><a href="#calculator" data-i18n="calculator" class="nav-link-item" onclick="toggleMenu()">Calculator</a></li>
+                    <li><a href="#ai-assistant" data-i18n="ai_assistant" class="nav-link-item" onclick="toggleMenu()">AI Assistant</a></li>
+                    <li><a href="#shop" data-i18n="shop" class="nav-link-item" onclick="toggleMenu()">Shop</a></li>
+                    <li><a href="#contact" data-i18n="contact" class="nav-link-item" onclick="toggleMenu()">Contact</a></li>
+                </ul>
+                <div class="nav-controls">
+                    <!-- Language Toggle Button -->
+                    <button id="lang-toggle" class="lang-toggle" onclick="toggleLanguage()">EN</button>
+                    <!-- Theme Toggle Button -->
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light and dark mode" onclick="toggleTheme()">
+                        <i class="fas fa-sun"></i> <!-- Icon will be dynamically changed by JS -->
+                    </button>
+                    <!-- Hamburger Menu Button -->
+                    <div class="hamburger" onclick="toggleMenu()">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content hidden">
+                <p data-i18n="hero_p1">Expert Tech Solutions & Digital Innovation</p>
+                <h1>Welcome to <br><span data-i18n="hero_h1_span">xCHAMi Studio</span></h1>
+                <p data-i18n="hero_p2">We fix the unfixable and automate the impossible. Your one-stop hub for Software Repair, WhatsApp Automation, and Digital Products.</p>
+                <a href="#services" class="btn btn-primary" data-i18n="hero_btn">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-title hidden" data-i18n-h2="about_h2">
+                <span>Who We Are</span>
+            </div>
+            <div class="about-grid">
+                <div class="about-card glass-card hidden">
+                    <i class="fas fa-user-astronaut profile-icon"></i>
+                    <h3>Chamidu Harshana</h3>
+                    <p style="margin-top: 10px;" data-i18n="about_card_p">Founder & Lead Technician</p>
+                </div>
+                <div class="about-text hidden">
+                    <h3 data-i18n="about_h3">Driving Digital Excellence</h3>
+                    <p data-i18n="about_p1">At xCHAMi Studio, we bridge the gap between hardware issues and software solutions. Founded by Chamidu Harshana, we specialize in diagnosing complex errors across all platforms.</p>
+                    <p data-i18n="about_p2">Beyond repairs, we are pioneers in WhatsApp automation technology, helping businesses streamline their communication with cutting-edge bots and auto-mention tools.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES SECTION -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title hidden" data-i18n-h2="services_h2"><span>Our Services</span></h2>
+            <div class="services-grid">
+                <!-- Service 1 -->
+                <div class="service-card glass-card hidden">
+                    <i class="fab fa-whatsapp service-icon"></i>
+                    <h3 data-i18n="service1_h3">WhatsApp Automation</h3>
+                    <p data-i18n="service1_p">Advanced auto-mention services, chatbot integration, and bulk messaging solutions to grow your audience engagement.</p>
+                </div>
+                <!-- Service 2 -->
+                <div class="service-card glass-card hidden">
+                    <i class="fas fa-wrench service-icon"></i>
+                    <h3 data-i18n="service2_h3">Software Error Fixer</h3>
+                    <p data-i18n="service2_p">Professional troubleshooting for Mobile, Desktop, and Laptops. Windows, MacOS, Android, and iOS system recovery.</p>
+                </div>
+                <!-- Service 3 -->
+                <div class="service-card glass-card hidden">
+                    <i class="fas fa-microchip service-icon"></i>
+                    <h3 data-i18n="service3_h3">Hardware Consulting</h3>
+                    <p data-i18n="service3_p">Expert advice on hardware upgrades and maintenance to ensure your devices run at peak performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CALCULATOR SECTION -->
+    <section id="calculator" class="calculator-section">
+        <div class="container">
+            <h2 class="section-title hidden" data-i18n-h2="calc_h2"><span>Scientific Calculator</span></h2>
+            <div class="calculator-body glass-card hidden">
+                
+                <div class="mode-toggle">
+                    <span id="calc-mode">RAD</span>
+                    <button class="calc-btn calc-btn-mode" id="mode-btn" data-i18n="calc_mode_btn" onclick="toggleMode()">Switch to DEG</button>
+                </div>
+                
+                <div class="display-container">
+                    <div id="current-input" class="current-input">0</div>
+                    <div id="display" class="display">0</div>
+                </div>
+
+                <div class="buttons-grid">
+                    <!-- Calculator buttons use fixed text/symbols, no i18n needed here -->
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('sin')">sin</button>
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('cos')">cos</button>
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('tan')">tan</button>
+                    <button class="calc-btn calc-btn-clear" onclick="deleteLast()"><i class="fas fa-backspace"></i></button>
+                    <button class="calc-btn calc-btn-clear" onclick="clearDisplay()">C</button>
+                    
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('log')">log</button>
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('sqrt')">&radic;</button>
+                    <button class="calc-btn calc-btn-mode" onclick="appendCharacter('Math.PI')">&pi;</button>
+                    <button class="calc-btn calc-btn-operator" onclick="appendCharacter('(')">(</button>
+                    <button class="calc-btn calc-btn-operator" onclick="appendCharacter(')')">)</button>
+                    
+                    <button class="calc-btn calc-btn-mode" onclick="appendCharacter('Math.E')">e</button>
+                    <button class="calc-btn" onclick="appendCharacter('7')">7</button>
+                    <button class="calc-btn" onclick="appendCharacter('8')">8</button>
+                    <button class="calc-btn" onclick="appendCharacter('9')">9</button>
+                    <button class="calc-btn calc-btn-operator" onclick="appendCharacter('/')">&divide;</button>
+                    
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('pow2')">x²</button>
+                    <button class="calc-btn" onclick="appendCharacter('4')">4</button>
+                    <button class="calc-btn" onclick="appendCharacter('5')">5</button>
+                    <button class="calc-btn" onclick="appendCharacter('6')">6</button>
+                    <button class="calc-btn calc-btn-operator" onclick="appendCharacter('*')">&times;</button>
+                    
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('exp')">exp</button>
+                    <button class="calc-btn" onclick="appendCharacter('1')">1</button>
+                    <button class="calc-btn" onclick="appendCharacter('2')">2</button>
+                    <button class="calc-btn" onclick="appendCharacter('3')">3</button>
+                    <button class="calc-btn calc-btn-operator" onclick="appendCharacter('-')">-</button>
+                    
+                    <button class="calc-btn calc-btn-mode" onclick="scientificFunction('fact')">n!</button>
+                    <button class="calc-btn" onclick="appendCharacter('0')">0</button>
+                    <button class="calc-btn" onclick="appendCharacter('.')">.</button>
+                    <button class="calc-btn calc-btn-equals" onclick="calculate()">=</button>
+                    <button class="calc-btn calc-btn-operator" onclick="appendCharacter('+')">+</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI ASSISTANT SECTION -->
+    <section id="ai-assistant" class="ai-assistant">
+        <div class="container">
+            <h2 class="section-title hidden" data-i18n-h2="ai_h2"><span>xCHAMi AI Assistant</span></h2>
+            <div class="chat-container glass-card hidden">
+                <div id="chat-history" class="chat-history">
+                    <!-- Initial Assistant Message (Dynamically set on language load) -->
+                    <div class="message assistant-message">
+                        <div class="message-content" data-i18n="ai_initial_msg">
+                            Hello! I am your xCHAMi Studio AI Assistant. I can help you with technical questions, software repair advice, or information about our WhatsApp automation services. How can I assist you today?
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" data-i18n-placeholder="ai_input_placeholder" placeholder="Ask your tech question here..." onkeydown="if(event.key === 'Enter') handleChatInput()">
+                    <button id="send-btn" onclick="handleChatInput()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SHOP SECTION -->
+    <section id="shop" class="shop">
+        <div class="container">
+            <h2 class="section-title hidden" data-i18n-h2="shop_h2"><span>Digital Store</span></h2>
+            <div class="product-grid">
+                <!-- Product 1 -->
+                <div class="product-card glass-card hidden">
+                    <div class="product-img">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="product-info">
+                        <h4 data-i18n="product1_h4">ASITHA - MD Bot v6</h4>
+                        <span class="price" data-i18n="product1_price">30 Days Rs. 100.00 </span>
+                        <button class="btn btn-primary btn-sm" data-i18n="buy_now">Buy Now</button>
+                    </div>
+                </div>
+                <!-- Product 2 -->
+                <div class="product-card glass-card hidden">
+                    <div class="product-img">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="product-info">
+                        <h4 data-i18n="product2_h4">Android Unlock Tool</h4>
+                        <span class="price" data-i18n="product2_price">Rs. 1500.00</span>
+                        <button class="btn btn-primary btn-sm" data-i18n="buy_now">Buy Now</button>
+                    </div>
+                </div>
+                <!-- Product 3 -->
+                <div class="product-card glass-card hidden">
+                    <div class="product-img">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="product-info">
+                        <h4 data-i18n="product3_h4">Premium Adobe Pack</h4>
+                        <span class="price" data-i18n="product3_price">Rs.1500 .00</span>
+                        <button class="btn btn-primary btn-sm" data-i18n="buy_now">Buy Now</button>
+                    </div>
+                </div>
+                <!-- Product 4 -->
+                <div class="product-card glass-card hidden">
+                    <div class="product-img">
+                        <i class="fas fa-shield-virus"></i>
+                    </div>
+                    <div class="product-info">
+                        <h4 data-i18n="product4_h4">Mobile Software Update</h4>
+                        <span class="price" data-i18n="product4_price">Rs. 1500.00</span>
+                        <button class="btn btn-primary btn-sm" data-i18n="buy_now">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title hidden" data-i18n-h2="contact_h2"><span>Contact Us</span></h2>
+            <div class="contact-container">
+                <div class="contact-info glass-card hidden">
+                    <h3 data-i18n="contact_h3">Get in Touch</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 30px;" data-i18n="contact_p">Have a software issue or need automation tools? Message us directly.</p>
+                    
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>xchamimovie@gmail.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+94 70 117 1975</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Colombo, Sri Lanka</span>
+                    </div>
+
+                    <a href="https://wa.me/?text=Hello%20xCHAMi%20Studio,%20I%20need%20help%20with..." target="_blank" class="btn btn-whatsapp" data-i18n="contact_btn">
+                        <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                    </a>
+                </div>
+
+                <div class="contact-form glass-card hidden">
+                    <form>
+                        <input type="text" data-i18n-placeholder="form_name" placeholder="Your Name" required>
+                        <input type="email" data-i18n-placeholder="form_email" placeholder="Your Email" required>
+                        <textarea rows="5" data-i18n-placeholder="form_textarea" placeholder="Describe your issue or request..." required></textarea>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;" data-i18n="form_submit">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="copyright" data-i18n="footer_p">&copy; 2023 xCHAMi Studio. Built by Chamidu Harshana.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // --- Globals ---
+        const API_URL_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent';
+        const apiKey = ""; // API Key is automatically provided by the Canvas environment.
+        let CHAT_HISTORY = [];
+        let isAILoading = false;
+        
+        // i18n Globals
+        let currentLang = 'en';
+        const langKey = 'xchami_language';
+
+        // DOM elements
+        const body = document.body;
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleIcon = themeToggleBtn.querySelector('i');
+        const themeKey = 'xchami_theme';
+        const darkIcon = 'fas fa-sun';
+        const lightIcon = 'fas fa-moon';
+        
+        // Chat DOM elements
+        const chatHistoryDiv = document.getElementById('chat-history');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        // Language DOM elements
+        const langToggleBtn = document.getElementById('lang-toggle');
+
+        // Navigation Elements
+        const navLinks = document.querySelectorAll('.nav-link-item');
+        const sections = document.querySelectorAll('section');
+
+        // --- i18n DATA ---
+        const i18nData = {
+            en: {
+                // Navbar
+                home: 'Home', about: 'About', services: 'Services', calculator: 'Calculator', ai_assistant: 'AI Assistant', shop: 'Shop', contact: 'Contact',
+                // Hero
+                hero_p1: 'Expert Tech Solutions & Digital Innovation', hero_h1_span: 'xCHAMi Studio',
+                hero_p2: 'We fix the unfixable and automate the impossible. Your one-stop hub for Software Repair, WhatsApp Automation, and Digital Products.',
+                hero_btn: 'Get Started',
+                // About
+                about_h2: 'Who We Are', about_h3: 'Driving Digital Excellence', about_card_p: 'Founder & Lead Technician',
+                about_p1: 'At xCHAMi Studio, we bridge the gap between hardware issues and software solutions. Founded by Chamidu Harshana, we specialize in diagnosing complex errors across all platforms.',
+                about_p2: 'Beyond repairs, we are pioneers in WhatsApp automation technology, helping businesses streamline their communication with cutting-edge bots and auto-mention tools.',
+                // Services
+                services_h2: 'Our Services', service1_h3: 'WhatsApp Automation', 
+                service1_p: 'Advanced auto-mention services, chatbot integration, and bulk messaging solutions to grow your audience engagement.',
+                service2_h3: 'Software Error Fixer', 
+                service2_p: 'Professional troubleshooting for Mobile, Desktop, and Laptops. Windows, MacOS, Android, and iOS system recovery.',
+                service3_h3: 'Hardware Consulting', 
+                service3_p: 'Expert advice on hardware upgrades and maintenance to ensure your devices run at peak performance.',
+                // Calculator
+                calc_h2: 'Scientific Calculator', calc_mode_btn: 'Switch to DEG',
+                // AI Assistant
+                ai_h2: 'xCHAMi AI Assistant', 
+                ai_initial_msg: 'Hello! I am your xCHAMi Studio AI Assistant. I can help you with technical questions, software repair advice, or information about our WhatsApp automation services. How can I assist you today?',
+                ai_input_placeholder: 'Ask your tech question here...',
+                // Shop
+                shop_h2: 'Digital Store', buy_now: 'Buy Now',
+                product1_h4: 'ASITHA - MD Bot v6', product1_price: '30 Days Rs. 100.00',
+                product2_h4: 'Android Unlock Tool', product2_price: 'Rs. 1500.00',
+                product3_h4: 'Premium Adobe Pack', product3_price: 'Rs.1500 .00',
+                product4_h4: 'Mobile Software Update', product4_price: 'Rs. 1500.00',
+                // Contact
+                contact_h2: 'Contact Us', contact_h3: 'Get in Touch',
+                contact_p: 'Have a software issue or need automation tools? Message us directly.',
+                contact_btn: 'Chat on WhatsApp',
+                form_name: 'Your Name', form_email: 'Your Email', form_textarea: 'Describe your issue or request...',
+                form_submit: 'Send Message',
+                // Footer
+                footer_p: '&copy; 2023 xCHAMi Studio. Built by Chamidu Harshana.',
+            },
+            si: {
+                // Navbar
+                home: 'මුල් පිටුව', about: 'අප ගැන', services: 'සේවා', calculator: 'ගණක යන්ත්‍රය', ai_assistant: 'AI සහායක', shop: 'වෙළඳසැල', contact: 'සම්බන්ධ වන්න',
+                // Hero
+                hero_p1: 'විශේෂඥ තාක්ෂණික විසඳුම් සහ ඩිජිටල් නවෝත්පාදන', hero_h1_span: 'xCHAMi ස්ටුඩියෝ',
+                hero_p2: 'අපට නොහැකි දේ නිවැරදි කර, කළ නොහැකි දේ ස්වයංක්‍රීය කරන්නෙමු. මෘදුකාංග අලුත්වැඩියාව, WhatsApp ස්වයංක්‍රීයකරණය සහ ඩිජිටල් නිෂ්පාදන සඳහා ඔබේ එකම මධ්‍යස්ථානය.',
+                hero_btn: 'ආරම්භ කරන්න',
+                // About
+                about_h2: 'අප කවුද', about_h3: 'ඩිජිටල් විශිෂ්ටත්වය මෙහෙයවීම', about_card_p: 'නිර්මාතෘ සහ ප්‍රධාන කාර්මික ශිල්පී',
+                about_p1: 'xCHAMi ස්ටුඩියෝහිදී, අපි දෘඪාංග ගැටළු සහ මෘදුකාංග විසඳුම් අතර පරතරය පුරවන්නෙමු. චමිඳු හර්ෂණ විසින් ආරම්භ කරන ලද අප, සියලුම වේදිකාවල සංකීර්ණ දෝෂ හඳුනාගැනීමේ විශේෂඥයෝ වෙමු.',
+                about_p2: 'අලුත්වැඩියාවලින් ඔබ්බට, ව්‍යාපාරවලට නවීන බොට්ස් සහ ස්වයංක්‍රීයව-නම් කිරීමේ මෙවලම් සමඟ සන්නිවේදනය විධිමත් කිරීමට උපකාර වන WhatsApp ස්වයංක්‍රීය තාක්ෂණයේ පුරෝගාමීන් අපි වෙමු.',
+                // Services
+                services_h2: 'අපගේ සේවා', service1_h3: 'WhatsApp ස්වයංක්‍රීයකරණය', 
+                service1_p: 'ඔබගේ ප්‍රේක්ෂක සම්බන්ධතාවය වර්ධනය කිරීම සඳහා උසස් ස්වයංක්‍රීය-නම් කිරීමේ සේවා, චැට්බොට් ඒකාබද්ධ කිරීම් සහ තොග පණිවිඩ යැවීමේ විසඳුම්.',
+                service2_h3: 'මෘදුකාංග දෝෂ නිවැරදි කිරීම', 
+                service2_p: 'ජංගම දුරකථන, ඩෙස්ක්ටොප් සහ ලැප්ටොප් සඳහා වෘත්තීය දෝෂ නිරාකරණය. Windows, MacOS, Android, සහ iOS පද්ධති ප්‍රතිසාධනය.',
+                service3_h3: 'දෘඪාංග උපදේශනය', 
+                service3_p: 'ඔබේ උපාංග උපරිම ක්‍රියාකාරීත්වයකින් ක්‍රියාත්මක වන බව සහතික කිරීම සඳහා දෘඪාංග වැඩිදියුණු කිරීම් සහ නඩත්තු කිරීම් පිළිබඳ විශේෂඥ උපදෙස්.',
+                // Calculator
+                calc_h2: 'විද්‍යාත්මක ගණක යන්ත්‍රය', calc_mode_btn: 'DEG වෙත මාරු වන්න',
+                // AI Assistant
+                ai_h2: 'xCHAMi AI සහායක',
+                ai_initial_msg: 'ආයුබෝවන්! මම ඔබගේ xCHAMi ස්ටුඩියෝ AI සහායකයායි. තාක්ෂණික ප්‍රශ්න, මෘදුකාංග අලුත්වැඩියා උපදෙස්, හෝ අපගේ WhatsApp ස්වයංක්‍රීය සේවා පිළිබඳ තොරතුරු ලබා දීමට මට පුළුවන්. අද මට ඔබට උදව් කළ හැක්කේ කෙසේද?',
+                ai_input_placeholder: 'ඔබගේ තාක්ෂණික ප්‍රශ්නය මෙහි අසන්න...',
+                // Shop
+                shop_h2: 'ඩිජිටල් වෙළඳසැල', buy_now: 'දැන් මිලදී ගන්න',
+                product1_h4: 'ASITHA - MD බොට් v6', product1_price: 'දින 30 කට රු. 100.00',
+                product2_h4: 'ඇන්ඩ්‍රොයිඩ් අගුළු හැරීමේ මෙවලම', product2_price: 'රු. 1500.00',
+                product3_h4: 'Premium Adobe පැකේජය', product3_price: 'රු. 1500.00',
+                product4_h4: 'ජංගම මෘදුකාංග යාවත්කාලීන කිරීම', product4_price: 'රු. 1500.00',
+                // Contact
+                contact_h2: 'අප හා සම්බන්ධ වන්න', contact_h3: 'අපව සම්බන්ධ කරගන්න',
+                contact_p: 'ඔබට මෘදුකාංග ගැටලුවක් තිබේද නැතහොත් ස්වයංක්‍රීය මෙවලම් අවශ්‍යද? අපට කෙලින්ම පණිවිඩයක් එවන්න.',
+                contact_btn: 'WhatsApp හරහා කතා කරන්න',
+                form_name: 'ඔබේ නම', form_email: 'ඔබේ ඊමේල් ලිපිනය', form_textarea: 'ඔබගේ ගැටලුව හෝ ඉල්ලීම විස්තර කරන්න...',
+                form_submit: 'පණිවිඩය යවන්න',
+                // Footer
+                footer_p: '&copy; 2023 xCHAMi ස්ටුඩියෝ. චමිඳු හර්ෂණ විසින් නිර්මාණය කරන ලදී.',
+            }
+        };
+
+        // --- i18n Functions ---
+        
+        /**
+         * Sets the language of the entire page and updates all text elements.
+         * @param {string} lang - 'en' or 'si'.
+         */
+        function setLanguage(lang) {
+            currentLang = lang;
+            const content = i18nData[lang];
+
+            // 1. Update text content
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (content[key]) {
+                    el.innerHTML = content[key];
+                }
+            });
+            
+            // 2. Update placeholder attributes
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (content[key]) {
+                    el.placeholder = content[key];
+                }
+            });
+            
+            // 3. Update section titles (h2 tags inside span wrappers)
+            document.querySelectorAll('[data-i18n-h2]').forEach(el => {
+                const key = el.getAttribute('data-i18n-h2');
+                const span = el.querySelector('span');
+                if (span && content[key]) {
+                    span.textContent = content[key];
+                }
+            });
+
+            // 4. Update initial AI message
+            const initialMsgEl = document.querySelector('.assistant-message .message-content[data-i18n="ai_initial_msg"]');
+            if (initialMsgEl && content.ai_initial_msg) {
+                initialMsgEl.textContent = content.ai_initial_msg;
+            }
+
+            // 5. Update language toggle button display
+            langToggleBtn.textContent = lang === 'en' ? 'සිංහල' : 'EN';
+            
+            // 6. Save preference
+            localStorage.setItem(langKey, lang);
+            
+            // 7. Clear chat history to start fresh with new language context
+            CHAT_HISTORY = [];
+            while (chatHistoryDiv.children.length > 1) { // Keep the initial message holder
+                chatHistoryDiv.removeChild(chatHistoryDiv.lastChild);
+            }
+        }
+        
+        /**
+         * Toggles the language between English and Sinhala.
+         */
+        function toggleLanguage() {
+            const newLang = currentLang === 'en' ? 'si' : 'en';
+            setLanguage(newLang);
+        }
+        
+        // --- Theme Management ---
+        
+        /**
+         * Applies the selected theme based on the class list.
+         * Updates the icon accordingly.
+         * @param {boolean} isLightMode - True if light mode is being applied.
+         */
+        function updateTheme(isLightMode) {
+            if (isLightMode) {
+                body.classList.add('light-mode');
+                themeToggleIcon.className = lightIcon; // Show moon icon to indicate switch to dark
+                localStorage.setItem(themeKey, 'light');
+            } else {
+                body.classList.remove('light-mode');
+                themeToggleIcon.className = darkIcon; // Show sun icon to indicate switch to light
+                localStorage.setItem(themeKey, 'dark');
+            }
+        }
+
+        /**
+         * Toggles between light and dark mode.
+         */
+        function toggleTheme() {
+            const isLight = body.classList.contains('light-mode');
+            updateTheme(!isLight);
+        }
+
+        /**
+         * Checks user preference or system preference and applies the theme on load.
+         */
+        function applyInitialTheme() {
+            // Theme check
+            const savedTheme = localStorage.getItem(themeKey);
+
+            if (savedTheme === 'light') {
+                updateTheme(true);
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (!prefersDark && savedTheme === null) {
+                    updateTheme(true);
+                } else {
+                    updateTheme(false); 
+                }
+            }
+            
+            // Language check
+            const savedLang = localStorage.getItem(langKey) || 'en';
+            setLanguage(savedLang);
+        }
+
+        // --- Active Navigation Highlighting ---
+        
+        const observerConfig = {
+            root: null,
+            rootMargin: '0px 0px -50% 0px', // Highlight section when it crosses the middle of the viewport
+            threshold: 0 // We're using margin for better control
+        };
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const id = entry.target.getAttribute('id');
+                const navLink = document.querySelector(`.nav-link-item[href="#${id}"]`);
+
+                if (navLink) {
+                    // Check if the section is currently visible in the intersection zone
+                    if (entry.isIntersecting) {
+                        // Remove active class from all links
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        // Add active class to the current section's link
+                        navLink.classList.add('active');
+                    }
+                }
+            });
+        }, observerConfig);
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Add a listener for the hash change (e.g., clicking a link) to ensure instant update
+        window.addEventListener('hashchange', () => {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === window.location.hash) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize active link on load
+        window.addEventListener('load', () => {
+             // Set the 'home' link as active if no hash or hash is '#home'
+            const currentHash = window.location.hash || '#home';
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentHash) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // --- Scientific Calculator Logic ---
+        
+        const display = document.getElementById('display');
+        const currentInput = document.getElementById('current-input');
+        const modeBtn = document.getElementById('mode-btn');
+        const calcModeSpan = document.getElementById('calc-mode');
+        
+        let expression = '';
+        let isResultDisplayed = false;
+        let mode = 'RAD'; 
+
+        function formatDisplay(exp) {
+            return exp
+                .replace(/\*/g, '×')
+                .replace(/\//g, '÷')
+                .replace(/Math\.PI/g, 'π')
+                .replace(/Math\.E/g, 'e');
+        }
+
+        function appendCharacter(char) {
+            if (isResultDisplayed && !['*', '/', '+', '-'].includes(char)) {
+                expression = '';
+                isResultDisplayed = false;
+            } else if (isResultDisplayed) {
+                isResultDisplayed = false;
+            }
+            
+            const lastChar = expression.slice(-1);
+            const isOperator = ['*', '/', '+', '-'].includes(char);
+            const lastIsOperator = ['*', '/', '+', '-'].includes(lastChar);
+            
+            if (isOperator && lastIsOperator) {
+                expression = expression.slice(0, -1) + char;
+            } else if (expression === '0' && char !== '.') {
+                expression = char;
+            } else {
+                expression += char;
+            }
+
+            currentInput.textContent = formatDisplay(expression);
+        }
+        
+        function toRad(deg) {
+            return deg * (Math.PI / 180);
+        }
+
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function scientificFunction(func) {
+            try {
+                let argument = 0;
+                if (expression.length > 0) {
+                    argument = new Function(`return ${expression}`)(); 
+                }
+                
+                let result;
+                
+                switch(func) {
+                    case 'sin':
+                        argument = mode === 'DEG' ? toRad(argument) : argument;
+                        result = Math.sin(argument);
+                        break;
+                    case 'cos':
+                        argument = mode === 'DEG' ? toRad(argument) : argument;
+                        result = Math.cos(argument);
+                        break;
+                    case 'tan':
+                        argument = mode === 'DEG' ? toRad(argument) : argument;
+                        result = Math.tan(argument);
+                        break;
+                    case 'log':
+                        result = Math.log10(argument); 
+                        break;
+                    case 'sqrt':
+                        result = Math.sqrt(argument);
+                        break;
+                    case 'pow2':
+                         result = Math.pow(argument, 2);
+                         break;
+                    case 'exp':
+                        result = Math.exp(argument); 
+                        break;
+                    case 'fact':
+                        result = factorial(argument);
+                        break;
+                    default:
+                        return;
+                }
+                
+                expression = result.toString();
+                display.textContent = result.toFixed(6); 
+                currentInput.textContent = `${func}(${formatDisplay(argument)})`;
+                isResultDisplayed = true;
+
+            } catch (error) {
+                display.textContent = 'Error';
+                currentInput.textContent = 'Invalid Function Call';
+                expression = '';
+                isResultDisplayed = true;
+                console.error("Calculator Error:", error);
+            }
+        }
+        
+        function toggleMode() {
+            if (mode === 'RAD') {
+                mode = 'DEG';
+                calcModeSpan.textContent = 'DEG';
+                modeBtn.textContent = i18nData[currentLang].calc_mode_btn.replace('DEG', 'RAD');
+            } else {
+                mode = 'RAD';
+                calcModeSpan.textContent = 'RAD';
+                modeBtn.textContent = i18nData[currentLang].calc_mode_btn.replace('RAD', 'DEG');
+            }
+            modeBtn.classList.toggle('active');
+        }
+
+        function calculate() {
+            if (expression === '') return;
+            try {
+                const result = new Function(`return ${expression}`)();
+
+                display.textContent = result;
+                currentInput.textContent = formatDisplay(expression);
+                expression = result.toString();
+                isResultDisplayed = true;
+            } catch (error) {
+                display.textContent = 'Error';
+                currentInput.textContent = 'Invalid Expression';
+                expression = '';
+                isResultDisplayed = true;
+                console.error("Calculation Error:", error);
+            }
+        }
+
+        function clearDisplay() {
+            expression = '0';
+            currentInput.textContent = '0';
+            display.textContent = '0';
+            isResultDisplayed = false;
+        }
+        
+        function deleteLast() {
+            if (isResultDisplayed) return;
+            
+            expression = expression.slice(0, -1);
+            
+            if (expression.length === 0) {
+                clearDisplay();
+            } else {
+                currentInput.textContent = formatDisplay(expression);
+            }
+        }
+        
+        // Initial setup for calculator
+        clearDisplay();
+        
+        // --- AI ASSISTANT FUNCTIONS ---
+        
+        function appendMessage(role, text, sources = []) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `${role}-message`);
+
+            let contentHTML = text.replace(/\n/g, '<br>');
+            let sourcesHTML = '';
+            
+            // Check if the message content is the initial message (which has the data-i18n attribute)
+            const isInitialMessage = role === 'assistant' && text === i18nData[currentLang].ai_initial_msg;
+
+            if (sources.length > 0) {
+                sourcesHTML = '<h5>Sources: ';
+                sources.forEach((source, index) => {
+                    sourcesHTML += `<a href="${source.uri}" target="_blank" style="color: var(--primary); text-decoration: underline;">[${index + 1}]</a> `;
+                });
+                sourcesHTML += '</h5>';
+            }
+
+            messageElement.innerHTML = `
+                <div class="message-content" ${isInitialMessage ? 'data-i18n="ai_initial_msg"' : ''}>
+                    ${contentHTML}
+                    ${sourcesHTML}
+                </div>
+            `;
+            chatHistoryDiv.appendChild(messageElement);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+        }
+
+        function setLoading(show) {
+            isAILoading = show;
+            sendBtn.disabled = show;
+            chatInput.disabled = show;
+            
+            let loadingDiv = document.getElementById('loading-dots');
+            if (show) {
+                if (!loadingDiv) {
+                    loadingDiv = document.createElement('div');
+                    loadingDiv.id = 'loading-dots';
+                    loadingDiv.classList.add('loading-indicator');
+                    loadingDiv.innerHTML = `
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        Assistant is typing...
+                    `;
+                    chatHistoryDiv.appendChild(loadingDiv);
+                }
+            } else if (loadingDiv) {
+                loadingDiv.remove();
+            }
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+        }
+
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return response;
+                    }
+                    if (response.status === 429 || response.status >= 500) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    throw new Error(`API returned status ${response.status}: ${response.statusText}`);
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                }
+            }
+            throw new Error("Failed to fetch from API after multiple retries.");
+        }
+
+
+        /**
+         * Sends the user query to the Gemini API, instructing it to respond in the current language.
+         * @param {string} userQuery - The message from the user.
+         */
+        async function sendMessageToGemini(userQuery) {
+            setLoading(true);
+
+            // Add user message to history
+            CHAT_HISTORY.push({ role: "user", parts: [{ text: userQuery }] });
+
+            const languageName = currentLang === 'si' ? 'Sinhala' : 'English';
+            const systemPrompt = `You are the helpful and knowledgeable technical support AI Assistant for xCHAMi Studio. Your expertise covers software error fixing (Windows, MacOS, Android), WhatsApp automation solutions, digital product information, and general tech advice. Be friendly, professional, and concise. All responses MUST be in ${languageName}. Always guide users to the Contact Us section for complex issues or purchases.`;
+
+            const payload = {
+                contents: CHAT_HISTORY,
+                tools: [{ "google_search": {} }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            const apiUrl = `${API_URL_BASE}?key=${apiKey}`;
+
+            try {
+                const response = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                let assistantResponseText = languageName === 'English' 
+                    ? 'Sorry, I encountered an issue getting a response.' 
+                    : 'කණගාටුයි, පිළිතුරක් ලබා ගැනීමේදී ගැටලුවක් ඇති විය.';
+                let sources = [];
+                
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    assistantResponseText = candidate.content.parts[0].text;
+
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        sources = groundingMetadata.groundingAttributions
+                            .map(attribution => ({
+                                uri: attribution.web?.uri,
+                                title: attribution.web?.title,
+                            }))
+                            .filter(source => source.uri && source.title);
+                    }
+                }
+
+                CHAT_HISTORY.push({ role: "model", parts: [{ text: assistantResponseText }] });
+                appendMessage('assistant', assistantResponseText, sources);
+
+            } catch (error) {
+                console.error('Gemini API Error:', error);
+                const errorMsg = languageName === 'English'
+                    ? 'I apologize, but I could not connect to the assistant right now. Please check your connection or try again later.'
+                    : 'කණගාටුයි, මට දැනට සහායකයා හා සම්බන්ධ වීමට නොහැකි විය. කරුණාකර ඔබේ සම්බන්ධතාවය පරීක්ෂා කරන්න.';
+                appendMessage('assistant', errorMsg);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function handleChatInput() {
+            const userQuery = chatInput.value.trim();
+            if (userQuery === '' || isAILoading) {
+                return;
+            }
+
+            appendMessage('user', userQuery);
+            chatInput.value = '';
+
+            sendMessageToGemini(userQuery);
+        }
+
+        // --- Other JS Functions ---
+
+        // 1. Mobile Menu Toggle
+        function toggleMenu() {
+            const nav = document.querySelector('.nav-links');
+            const burger = document.querySelector('.hamburger i');
+            nav.classList.toggle('nav-active');
+            
+            // Toggle icon between bars and times
+            if (nav.classList.contains('nav-active')) {
+                burger.classList.remove('fa-bars');
+                burger.classList.add('fa-times');
+            } else {
+                burger.classList.remove('fa-times');
+                burger.classList.add('fa-bars');
+            }
+        }
+
+        // 2. Intersection Observer for Scroll Animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, observerOptions);
+
+        // Select all elements with 'hidden' class
+        const hiddenElements = document.querySelectorAll('.hidden');
+        hiddenElements.forEach((el) => observer.observe(el));
+        
+        // Execute theme and language check on page load
+        document.addEventListener('DOMContentLoaded', applyInitialTheme);
+    </script>
+</body>
+</html>
